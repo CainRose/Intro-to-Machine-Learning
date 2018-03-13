@@ -162,7 +162,7 @@
 	
 	The above equation involves the product of several thousand different probabilities, many quite small. To prevent the issue of arithmetic underflow, the log of this probability ratio was used instead:
 	\begin{equation*}
-		\log(\frac{P(y = c \mid x_1, x_2, ..., x_p)}{P(y = c' \mid x_1, x_2, ..., x_p)}) = \log(\frac{P(y = c)}{P(y = c')}) + \sum_{i=1}^{p}\frac{\log P(x_i \mid y = c)}{\log P(x_i \mid y = c')}
+		\log \frac{P(y = c \mid x_1, x_2, ..., x_p)}{P(y = c' \mid x_1, x_2, ..., x_p)} = \log \frac{P(y = c)}{P(y = c')} + \sum_{i=1}^{p} \log \frac{P(x_i \mid y = c)}{P(x_i \mid y = c')}
 	\end{equation*}
 	as suggested in the handout. In this new formulation, a value greater than 0 denotes fake news. From this point, standard Naive Bayes was used to determine the probabilities.
 	
@@ -348,8 +348,16 @@
 %	PART 4
 %----------------------------------------------------------------------------------------
 
+\FloatBarrier
 \begin{problem}
 	
+	A linear regression model was trained on the dataset using L2-regularization. The learning curve with cross-entropy loss is shown in \cref{fig:q4}, achieving a final accuracy of 0.8143 on the training set. The regularization term was selected by minimizing the validation error at the end of training using the minimize\_scalar function provided in scipy.optimize with the Brent algorithm. The resulted in the selection of an regularization weight of 0.000061.
+	
+	\begin{figure}
+		\includegraphics[width=\linewidth]{q4}
+		\caption{Normalized loss for the training and validation sets for 800 epochs with a regularization term of 0.000061}
+		\label{fig:q4}
+	\end{figure}
 	
 \end{problem}
 \clearpage
@@ -358,8 +366,21 @@
 %	PART 5
 %----------------------------------------------------------------------------------------
 
+\FloatBarrier
 \begin{problem}
 	
+	In both formulations, \(I_i(x)\) denotes the selector function, choosing the \(i\)-th variable of the input vector \(x\). In the case of logistic regression, \(\theta_i\) are the parameters being directly optimized by the optimization procedure. For Naive Bayes, their meaning can be found by continuing the derivation started in part 2:
+	
+	\begin{align*}
+		\log \frac{P(y = c \mid x_1, x_2, ..., x_p)}{P(y = c' \mid x_1, x_2, ..., x_p)} &= \log \frac{P(y = c)}{P(y = c')} + \sum_{i=1}^{p} \log \frac{P(x_i \mid y = c)}{P(x_i \mid y = c')} \\
+		&= \log \frac{P(y = c)}{P(y = c')} + \sum_{i=1}^{p}\qty(\log \frac{P(x_i = 1 \mid y = c)}{P(x_i = 1 \mid y = c')}x_i + \log \frac{P(x_i = 0 \mid y = c)}{P(x_i = 0 \mid y = c')}(1 - x_i)) \\
+		&= \qty(\log \frac{P(y = c)}{P(y = c')} + \sum_{i=1}^{p} \log \frac{P(x_i = 0 \mid y = c)}{P(x_i = 0 \mid y = c')}) + \\
+		&\qquad\qquad \sum_{i=1}^{p}\qty(\log \frac{P(x_i = 1 \mid y = c)}{P(x_i = 1 \mid y = c')} - \log \frac{P(x_i = 0 \mid y = c)}{P(x_i = 0 \mid y = c')})x_i \\
+		&= \theta_0 + \sum_{i=1}^{p} \theta_i x_i
+	\end{align*}
+	which is the form desired. Compare this with with the formulation obtained in part 3. Hence, in the case of Naive Bayes \(\theta_i\) represents the combination of the impact of the presence as well as the negation of the impact of its absence, normally present in the constant bias term. 
+	
+	For both logistic regression and naive bayes, the threshold is zero.
 	
 \end{problem}
 \clearpage
@@ -368,8 +389,96 @@
 %	PART 6
 %----------------------------------------------------------------------------------------
 
+\FloatBarrier
 \begin{problem}
 	
+	\begin{subproblem}
+		
+		Compared with \cref{tab:q3a}, the resulting parameters share only a couple of the same words, and not in the same order. These similarities suggest that both are generally looking for the same features to classify The larger differences are to be expected, however, since the parameters do not map directly to any of the probabilities in part 3. Instead, they in some sense represent the combination of both the presence of the words negation of its absence (normally accounted for in the constant bias). From a purely subjective perspective however, the words in each list match the same tone as those from before; more neutral, "reportive" words seem to suggest that a headline is real, while more emotional, aggressive, and idealistic terms are associated with it being fake.
+		
+		\begin{table}
+			\begin{subtable}{0.5\linewidth}
+				\centering
+				\begin{tabular}{rS}	
+					vandalised     & -1.2439 \\
+					share          & -1.2043 \\
+					business       & -1.2039 \\
+					debate         & -1.1903 \\
+					trumps         & -1.1848 \\
+					australia      & -1.1791 \\
+					keating        & -1.1749 \\
+					affect         & -1.1667 \\
+					speaks         & -1.1633 \\
+					love           & -1.1324
+				\end{tabular}
+				\caption{Presence suggests real.}
+			\end{subtable}%
+			\begin{subtable}{0.5\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					information   & 1.3171 \\
+					won           & 1.3162 \\
+					go            & 1.3132 \\
+					alt           & 1.2981 \\
+					erase         & 1.2293 \\
+					artificial    & 1.2283 \\
+					reset         & 1.2230 \\
+					breaking      & 1.1966 \\
+					autistic      & 1.1911 \\
+					entire        & 1.1858
+				\end{tabular}
+				\caption{Presence suggests fake.}
+			\end{subtable}
+			\caption{Words with largest and smallest associated parameters, signifying fake or real respectively.}
+			\label{tab:q4a}
+		\end{table}
+	\end{subproblem}
+	
+	\begin{subproblem}
+		
+		As before, there is only slight similarity between \cref{tab:q3b,tab:q4b}. However, the removal of stop words seems to have resulted in less of a change in the words selected by logistic regression. This may be the result of the combination of both the presence and negating the absence, as mentioned before - stop words may not be very useful for actually predicting a headline as real or fake and could represent overfitting.
+		
+		\begin{table}
+			\begin{subtable}{0.5\linewidth}
+				\centering
+				\begin{tabular}{rS}	
+					vandalised     & -1.2439 \\
+					share          & -1.2043 \\
+					business       & -1.2039 \\
+					debate         & -1.1903 \\
+					trumps         & -1.1848 \\
+					australia      & -1.1791 \\
+					keating        & -1.1749 \\
+					affect         & -1.1667 \\
+					speaks         & -1.1633 \\
+					love           & -1.1324
+				\end{tabular}
+				\caption{Presence suggests real.}
+			\end{subtable}%
+			\begin{subtable}{0.5\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					information   & 1.3171 \\
+					won           & 1.3162 \\
+					alt           & 1.2981 \\
+					erase         & 1.2293 \\
+					artificial    & 1.2283 \\
+					reset         & 1.2230 \\
+					breaking      & 1.1966 \\
+					autistic      & 1.1911 \\
+					entire        & 1.1858 \\
+					display       & 1.1806
+				\end{tabular}
+				\caption{Presence suggests fake.}
+			\end{subtable}
+			\caption{Words, excluding stop words, with largest and smallest associated parameters, signifying fake or real respectively.}
+			\label{tab:q4b}
+		\end{table}
+	\end{subproblem}
+	
+	\begin{subproblem}
+		This is probably not a good idea in general since the relationship between the magnitude of the different inputs may not be well known. For example, if the input is not normalized and two variables, having differen magnitudes, each contribute about the same to determining the class of an input, then the variable with the larger value will necessarily have a smaller associated parameter. By only considering the largest parameters then, a skewed and potentially incorrect view on what is most important for classification may be developed. Even if the data is normalized, the means of the different variables may still vary. In this specific case however, the input is a binary signal. Thus, each parameter can be interpreted in the same context and thus comparing by magnitude is valid.
+	\end{subproblem}
 	
 \end{problem}
 \clearpage

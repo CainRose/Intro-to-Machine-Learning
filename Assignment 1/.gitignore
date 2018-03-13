@@ -1,0 +1,8 @@
+/.idea
+/cropped
+/uncropped
+/kNN
+/_minted-faces
+*.pyc
+*.pyg
+*.synctex.gz
