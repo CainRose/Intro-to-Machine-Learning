@@ -1,0 +1,399 @@
+% This document is based on a template created by Ted Pavlic (http://www.tedpavlic.com)
+
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{article}
+
+\usepackage{fancyhdr} % Required for custom headers
+\usepackage{lastpage} % Required to determine the last page for the footer
+\usepackage{extramarks} % Required for headers and footers
+\usepackage[usenames,dvipsnames]{color} % Required for custom colors
+\usepackage{graphicx} % Required to insert images
+\usepackage{subcaption}
+\usepackage{listings} % Required for insertion of code
+\usepackage{courier} % Required for the courier font
+%\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage{amsmath,siunitx,physics,amssymb}
+\usepackage{cleveref}
+\usepackage{placeins}
+\usepackage{enumitem}
+
+% Margins
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\linespread{1.1} % Line spacing
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{\hmwkAuthorName} % Top left header
+\chead{\hmwkClass\ (\hmwkClassTime): \hmwkTitle} % Top center head
+%\rhead{\firstxmark} % Top right header
+\lfoot{\lastxmark} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{Page\ \thepage\ of\ \protect\pageref{LastPage}} % Bottom right footer
+\renewcommand\headrulewidth{0.4pt} % Size of the header rule
+\renewcommand\footrulewidth{0.4pt} % Size of the footer rule
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+%\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT STRUCTURE COMMANDS
+%	Skip this unless you know what you're doing
+%----------------------------------------------------------------------------------------
+
+% Header and footer for when a page split occurs within a problem environment
+\newcommand{\enterproblemHeader}[1]{
+%\nobreak\extramarks{#1}{#1 continued on next page\ldots}\nobreak
+%\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+}
+
+% Header and footer for when a page split occurs between problem environments
+\newcommand{\exitproblemHeader}[1]{
+%\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+%\nobreak\extramarks{#1}{}\nobreak
+}
+
+\setcounter{secnumdepth}{0} % Removes default section numbers
+\newcounter{problem} % Creates a counter to keep track of the number of problems
+\setcounter{problem}{-1}
+
+\newcommand{\problemName}{}
+\newenvironment{problem}[1][Part \theproblem]{ % Makes a new environment called problem which takes 1 argument (custom name) but the default is "problem #"
+	\stepcounter{problem} % Increase counter for number of problems
+	\renewcommand{\problemName}{#1} % Assign \problemName the name of the problem
+	\section{\problemName} % Make a section in the document with the custom problem count
+	\enterproblemHeader{\problemName} % Header and footer within the environment
+}{
+	\exitproblemHeader{\problemName} % Header and footer after the environment
+}
+
+\newcommand{\problemAnswer}[1]{ % Defines the problem answer command with the content as the only argument
+	\noindent\framebox[\columnwidth][c]{\begin{minipage}{0.98\columnwidth}#1\end{minipage}} % Makes the box around the problem answer and puts the content inside
+}
+
+\newcounter{subproblem}[problem]
+\newcommand{\subproblemName}{}
+\newenvironment{subproblem}[1][\theproblem~(\alph{subproblem})]{ % New environment for sections within  problems, takes 1 argument - the name of the section
+	\stepcounter{subproblem}
+	\renewcommand{\subproblemName}{#1} % Assign \problemName the name of the problem
+	\subsection{\subproblemName} % Make a section in the document with the custom problem count
+	\enterproblemHeader{\subproblemName} % Header and footer within the environment
+}{
+	\enterproblemHeader{\problemName} % Header and footer after the environment
+}
+
+\newcommand{\numberthis}{\addtocounter{equation}{1}\tag{\theequation}}
+
+%----------------------------------------------------------------------------------------
+%	NAME AND CLASS SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\hmwkTitle}{Assignment\ \#$3$} % Assignment title
+\newcommand{\hmwkDueDate}{Monday,\ March\ 19,\ 2018} % Due date
+\newcommand{\hmwkClass}{CSC411} % Course/class
+\newcommand{\hmwkClassTime}{L2001} % Class/lecture time
+\newcommand{\hmwkAuthorName}{Lukas Zhornyak} % Your name
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{
+	\vspace{2in}
+	\textmd{\textbf{\hmwkClass:\ \hmwkTitle}}\\
+	\normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate}\\
+	\vspace{0.1in}
+	\vspace{3in}
+}
+
+\author{\textbf{\hmwkAuthorName}}
+%\date{} % Insert date here if you want it to appear below your name
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	ENVIRONMENT
+%----------------------------------------------------------------------------------------
+
+\begin{problem}[Environment]	
+	Parts 1-6 were created with Python 2.7.14 with numpy 1.14.0, scipy 1.0.0, scikit-image 0.13.1, and matplotlib 2.1.1, as well as all associated dependencies. 
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 1
+%----------------------------------------------------------------------------------------
+\FloatBarrier
+\begin{problem}
+	
+	The headline dataset consists of two distinct parts: a set of "real" headlines and a set of "fake" headlines. There are 1968 real headlines, averaging 8.33 words per headline and 5.29 characters per word, and 1298 fake headlines, averaging 12.15 words per headline and 4.98 characters per word. Note that fake headlines seem to be longer but use smaller words, suggesting a difference in the language used in both sets. This gives credence to the feasibility of classifying a headline as fake or not based on the words used. Of course, just a headline is not very much information to go on, so it is likely that the accuracy will not be phenomenal.
+	
+	Some words that might prove useful in identifying a certain headline as fake or not are "says" (178 occurrences in the real data set vs 47 occurrences in the fake data set), "donald" (829 vs 228), and "hillary" (24 vs 159). The code used to obtain these words is given in the submitted code.
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 2
+%----------------------------------------------------------------------------------------
+
+\begin{problem}
+	
+	To implement a Naive Bayes classifier, the ratio of the probability of a certain headline being fake to the ratio of it being real was examined when attempting to classify the headline:
+	\begin{equation*}
+		\frac{P(y = c \mid x_1, x_2, ..., x_p)}{P(y = c' \mid x_1, x_2, ..., x_p)} = \frac{P(y = c))\prod_{i=1}^{p}P(x_i \mid y = c)}{P(y = c')\prod_{i=1}^{p}P(x_i \mid y = c')}
+	\end{equation*}
+	where \(y\) is the label, \(x_i\) is a binary value indicating the presence of \(i\)-th keyword, \(p\) is the number of keywords, and \(c\) is the fake or real class, with \(c'\) being the opposite. If this value is larger then \(1\), \(P(y = c \mid x_1, x_2, ..., x_p)\) is larger than \(P(y = c' \mid x_1, x_2, ..., x_p)\) and thus the headline is classified as fake, and vice versa. Some minor preprocessing was done to convert the headlines into this one-hot feature representation.
+	
+	The above equation involves the product of several thousand different probabilities, many quite small. To prevent the issue of arithmetic underflow, the log of this probability ratio was used instead:
+	\begin{equation*}
+		\log(\frac{P(y = c \mid x_1, x_2, ..., x_p)}{P(y = c' \mid x_1, x_2, ..., x_p)}) = \log(\frac{P(y = c)}{P(y = c')}) + \sum_{i=1}^{p}\frac{\log P(x_i \mid y = c)}{\log P(x_i \mid y = c')}
+	\end{equation*}
+	as suggested in the handout. In this new formulation, a value greater than 0 denotes fake news. From this point, standard Naive Bayes was used to determine the probabilities.
+	
+	To tune the prior \(m\) and \(\hat{p}\), a basic gradient descent was performed on the validation set with initial values \(\hat{p} = 0.5\) and \(m = 10\). A secant approximation with small step size was used to approximate the gradient at each point. This resulted in small but consistent performance improvements of about 2 to 4 percent on the validation and testing set, but a loss in performance on the training set of about 1 to 3 percent. This suggests that this method is working properly to prevent over-fitting. The final accuracy achieved on the training and test sets was 0.9528 and 0.8408, respectively.
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 3
+%----------------------------------------------------------------------------------------
+
+\FloatBarrier
+\begin{problem}
+	
+	\begin{subproblem}
+		To find the words that maximizes the probability that a given text is real or fake given the presence or absence of it, Bayes' rule can be applied:
+		\begin{equation*}
+			\argmax \limits_{i} P(y = c \mid x_i = a) = \argmax \limits_{i} \frac{P(x_i = a \mid y = c)P(y = c)}{P(x_i = a)}
+		\end{equation*}
+		where \(a\) is either 0 or 1, depending on whether the presence or absence is desired. Unfortunately, the true value of \(P(x_i = a)\) is not known very well and may often be 0 if only the dataset is used to determine it, so this formula cannot be applied as is. However, considering that only the ordering of the probabilities \(P(y = c \mid x_i)\) is needed to find the maximum and knowing that \(P(y = c' \mid x_i = a) = 1 - P(y = c \mid x_i = a)\), the maximizing \(x_i\) can also be found as
+		\begin{align*}
+			\argmax \limits_{i} P(y = c \mid x_i = a) &= \argmax \limits_{i} \frac{P(y = c \mid x_i = a)}{P(y = c' \mid x_i = a)}\\
+			&= \argmax \limits_{i} \frac{P(x_i = a \mid y = c)P(y = c)}{P(x_i = a \mid y = c')P(y = c')} \\
+			&= \argmax \limits_{i} \frac{P(x_i = a \mid y = c)}{P(x_i = a \mid y = c')} \\
+			&= \argmax \limits_{i} \log(\frac{P(x_i = a \mid y = c)}{P(x_i = a \mid y = c')})
+		\end{align*}
+		where the log was added to assist in interpreting the value. If \(\log(\cdots)\) is greater than zero, it means that \(x_i = a\) predicts that the text has the label \(c\) and vice versa. Larger magnitudes indicate a greater probability. The top ten words and associated log probability ratios are shown in \cref{tab:q3a}. Note that the strength of the presence of a word in determining whether a headline is real or fake is significantly larger than the strength of its absence. This makes intuitive sense since a typical headline will not contain the majority of the words, regardless of it being fake or real.
+		\begin{table}
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					ban           & 4.8711 \\
+					korea         & 4.7235 \\
+					travel        & 4.5503 \\
+					turnbull      & 4.3693 \\
+					australia     & 4.1123 \\
+					tax           & 3.7654 \\
+					paris         & 3.6560 \\
+					james         & 3.5331 \\
+					trumps        & 3.4768 \\
+					debate        & 3.4654
+				\end{tabular}
+				\caption{Presence suggests real.}
+			\end{subtable}%
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					trump         & 1.6880 \\
+					the           & 0.2619 \\
+					hillary       & 0.1040 \\
+					a             & 0.0906 \\
+					in            & 0.0869 \\
+					to            & 0.0843 \\
+					and           & 0.0787 \\
+					is            & 0.0742 \\
+					clinton       & 0.0735 \\
+					for           & 0.0592
+				\end{tabular}
+			\caption{Absence suggests real.}
+			\label{tab:3ab}
+			\end{subtable}%
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					breaking      & 4.6573 \\
+					3             & 4.4378 \\
+					won           & 4.2343 \\
+					soros         & 4.2343 \\
+					u             & 4.0712 \\
+					woman         & 4.0712 \\
+					because       & 4.0712 \\
+					homeless      & 4.0712 \\
+					liberty       & 3.9785 \\
+					reason        & 3.9785
+				\end{tabular}
+				\caption{Presence suggests fake.}
+			\end{subtable}%
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					donald        & 0.3265 \\
+					trumps        & 0.1204 \\ 
+					us            & 0.0950 \\
+					says          & 0.0507 \\
+					ban           & 0.0425 \\
+					north         & 0.0391 \\
+					korea         & 0.0365 \\
+					travel        & 0.0305 \\
+					turnbull      & 0.0254 \\
+					australia     & 0.0195
+				\end{tabular}
+				\caption{Absence suggests fake.}
+			\end{subtable}
+			\caption{Words most likely to denote a headline as real or fake based on its presence or absence with associated importance.}
+			\label{tab:q3a}
+		\end{table}
+	\end{subproblem}
+
+	\begin{subproblem}
+		The top ten words, excluding stop words, and associated log probability ratios are shown in \cref{tab:q3b}.
+		\begin{table}
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					ban           & 4.8711 \\
+					korea         & 4.7235 \\
+					travel        & 4.5503 \\
+					turnbull      & 4.3693 \\
+					australia     & 4.1123 \\
+					tax           & 3.7654 \\
+					paris         & 3.6560 \\
+					james         & 3.5331 \\
+					trumps        & 3.4768 \\
+					debate        & 3.4654
+				\end{tabular}
+				\caption{Presence suggests real.}
+			\end{subtable}%
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}	
+					trump         & 1.6880 \\
+					hillary       & 0.1040 \\
+					clinton       & 0.0735 \\
+					just          & 0.0532 \\
+					america       & 0.0392 \\
+					watch         & 0.0287 \\ 
+					voter         & 0.0279 \\
+					new           & 0.0265 \\
+					victory       & 0.0257 \\
+					voting        & 0.0249
+				\end{tabular}
+				\caption{Absence suggests real.}
+				\label{tab:3bb}
+			\end{subtable}%
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					breaking      & 4.6573 \\
+					3             & 4.4378 \\
+					won           & 4.2343 \\
+					soros         & 4.2343 \\
+					u             & 4.0712 \\
+					woman         & 4.0712 \\
+					homeless      & 4.0712 \\
+					liberty       & 3.9785 \\
+					reason        & 3.9785 \\
+					7             & 3.8763
+				\end{tabular}
+				\caption{Presence suggests fake.}
+			\end{subtable}%
+			\begin{subtable}{0.25\linewidth}
+				\centering
+				\begin{tabular}{rS}
+					donald        & 0.3265 \\
+					trumps        & 0.1204 \\
+					says          & 0.0507 \\
+					ban           & 0.0425 \\
+					north         & 0.0391 \\
+					korea         & 0.0365 \\
+					travel        & 0.0305 \\
+					turnbull      & 0.0254 \\
+					australia     & 0.0195 \\
+					house         & 0.0188
+				\end{tabular}
+				\caption{Absence suggests fake.}
+			\end{subtable}
+			\caption{Words most likely to denote a headline as real or fake based on its presence or absence with associated importance, excluding stop words.}
+			\label{tab:q3b}
+		\end{table}
+	\end{subproblem}
+
+	\begin{subproblem}
+		Stop words are present in all written works and normally do not carry with them any particular viewpoint or biases. Additionally, since there is a large number of them and since they are relatively common, slight differences in their prevalence in the trained data set may be exploited, potentially overfitting the data.
+		
+		From a different perspective, if there is a consistent difference in how stop words are used in real and fake headlines, then excluding these words causes a loss in information. Consider the difference in words present in \cref{tab:3ab,tab:3bb}. Almost all of the words in the original list are stop words and are not present in the second. This confirms an earlier observation made in part 1: fake headlines seem to use more but shorter words, suggesting a greater prevalence of linking words. 
+	\end{subproblem}
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 4
+%----------------------------------------------------------------------------------------
+
+\begin{problem}
+	
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 5
+%----------------------------------------------------------------------------------------
+
+\begin{problem}
+	
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 6
+%----------------------------------------------------------------------------------------
+
+\begin{problem}
+	
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 7
+%----------------------------------------------------------------------------------------
+
+\begin{problem}
+	
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+%	PART 8
+%----------------------------------------------------------------------------------------
+
+\begin{problem}
+	
+	
+\end{problem}
+\clearpage
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
