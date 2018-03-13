@@ -2,11 +2,19 @@ import torch
 import numpy as np
 from scipy.optimize import minimize_scalar
 
+dtype_float = torch.cuda.FloatTensor
+dtype_long = torch.cuda.LongTensor
 
 def build_model(num_words):
     return torch.nn.Sequential(
-        torch.nn.Linear(num_words, 2)
+        torch.nn.Linear(num_words, 1)
     )
+
+
+def cross_entropy_loss(y_pred, y):
+    y = y.type(dtype_float)
+    y_pred = 0.999 / (1 + torch.exp(-y_pred[:,0])) + 0.0005
+    return -torch.sum(y * torch.log(y_pred) + (1 - y) * torch.log(1 - y_pred)) / len(y_pred.data.cpu().numpy())
 
 
 def get_error(model, loss_fn, data):
@@ -30,7 +38,7 @@ def train_classifier(model, loss_fn, train, valid, learning_rate=1e-3,
             y = train[1][idx[j:j + batch_size],]
 
             y_pred = model(x)
-            loss = loss_fn(y_pred, y) - \
+            loss = loss_fn(y_pred, y) + \
                    float(regularization) * torch.norm(model[0].weight)
 
             model.zero_grad()
@@ -45,13 +53,15 @@ def train_classifier(model, loss_fn, train, valid, learning_rate=1e-3,
 def tune_regularization(data, iterations=500, batch_size=1000):
     def parameter_performance(param, train, valid, iterations, batch_size):
         model = build_model(train[0].shape[1]).cuda()
-        loss_fn = torch.nn.CrossEntropyLoss().cuda()
+        loss_fn = cross_entropy_loss
         train_classifier(model, loss_fn, train, valid, iterations=iterations,
                          batch_size=batch_size, regularization=param)
         actual = valid[1].data.cpu().numpy()
         prediction = model(valid[0]).data.cpu().numpy()
-        val = np.mean(np.argmax(prediction, 1) == actual)
+        val = np.mean((prediction > 0).T == actual)
         err = get_error(model, loss_fn, valid)[0]
+        if ('{:f}'.format(err)) == 'nan':
+            err = get_error(model, loss_fn, valid)[0]
         print('{:f} {:f}'.format(val, err))
         return err
 

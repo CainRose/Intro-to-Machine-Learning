@@ -126,16 +126,16 @@ def main():
     elif question == '4':
         data, keywords = data_processing.process_data(fake, real, True)
 
-        weight_decay = logistic.tune_regularization(data)
+        weight_decay = 0.000061 # logistic.tune_regularization(data)
 
         model = logistic.build_model(len(keywords)).cuda()
-        loss_fn = torch.nn.CrossEntropyLoss().cuda()
+        loss_fn = logistic.cross_entropy_loss
         train_error, valid_error = logistic.train_classifier(
-            model, loss_fn, data[0], data[1], iterations=500, batch_size=1000,
-            weight_decay=weight_decay)
+            model, loss_fn, data[0], data[1], iterations=800, batch_size=1000,
+            regularization=weight_decay)
         plt.plot(np.arange(0, len(train_error)) * 10, train_error)
         plt.plot(np.arange(0, len(valid_error)) * 10, valid_error)
-        plt.xlabel('Iterations')
+        plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend(('Training Set', 'Validation Set'))
         plt.savefig('q4.png')
@@ -148,7 +148,29 @@ def main():
         print('Testing Set Error:',
               logistic.get_error(model, loss_fn, data[2])[0])
         print('Testing Set Accuracy:',
-              np.mean(np.argmax(prediction, 1) == actual))
+              np.mean((prediction > 0.5).T == actual))
+
+        param = model[0].weight.cpu().data.numpy()[0]
+        param_sort = np.argsort(param)
+        print("Including stop words")
+        print("Words whose presence predicts a real headline")
+        for i in param_sort[:10]:
+            print('\t{:15}{:.4f}'.format(keywords[i], param[i]))
+        print("Words whose presence predicts a fake headline")
+        for i in param_sort[-10:][::-1]:
+            print('\t{:15}{:.4f}'.format(keywords[i], param[i]))
+
+        from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+        ENGLISH_STOP_WORDS = list(ENGLISH_STOP_WORDS)
+        param_sort = param_sort[np.isin(keywords[param_sort],
+                                              ENGLISH_STOP_WORDS, invert=True)]
+        print("Excluding stop words")
+        print("Words whose presence predicts a real headline")
+        for i in param_sort[:10]:
+            print('\t{:15}{:.4f}'.format(keywords[i], param[i]))
+        print("Words whose presence predicts a fake headline")
+        for i in param_sort[-10:][::-1]:
+            print('\t{:15}{:.4f}'.format(keywords[i], param[i]))
 
 
 if __name__ == '__main__':
