@@ -1,0 +1,9 @@
+/.idea
+/__pycache__
+/_minted-deepnn
+*.log
+*.aux
+*.synctex.gz
+*.pyc
+*.pyg
+*.pkl

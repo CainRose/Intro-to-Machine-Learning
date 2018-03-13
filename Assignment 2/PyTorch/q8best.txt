@@ -1,0 +1,6 @@
+Image Size: 64
+Hidden Layer Size: 20
+Iterations: 200
+Batch Size: 100
+Activation Function: LeakyReLU(0.01)
+Initial Learning Rate: 0.001
