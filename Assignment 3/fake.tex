@@ -16,10 +16,12 @@
 \usepackage{listings} % Required for insertion of code
 \usepackage{courier} % Required for the courier font
 %\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
-\usepackage{amsmath,siunitx,physics,amssymb}
-\usepackage{cleveref}
+\usepackage{amsmath,siunitx,amssymb}
 \usepackage{placeins}
+%\renewcommand\TestAppExists[3]{#2}
+\usepackage{minted}
 \usepackage{enumitem}
+\usepackage{hyperref,cleveref}
 
 % Margins
 \topmargin=-0.45in
@@ -486,9 +488,52 @@
 %----------------------------------------------------------------------------------------
 %	PART 7
 %----------------------------------------------------------------------------------------
-
+\FloatBarrier
 \begin{problem}
 	
+	\begin{subproblem}
+		A decision tree was trained on the data set with parameters \(\mathrm{max\_depth} = 100\), \(\mathrm{max\_features} = 1000\), \(\mathrm{criterion} = \mathrm{'gini'}\), \(\mathrm{splitter} = \mathrm{'best'}\), \(\mathrm{min\_samples\_leaf} = 1\), and  \(\mathrm{min\_samples\_split} = 5\). This achieved a final accuracy of 75.91\% on the testing set. A plot of the accuracy on the training and validation set versus the selection of the max\_depth is shown in \cref{fig:q7a}.
+		
+		The parameters above were selected by performing a grid search on the a predetermined set of reasonable values. The combinations of parameters that produced the largest accuracy on the validation set was selected as the best settings and saved.
+		
+		\begin{figure}
+			\includegraphics[width=\linewidth]{q7}
+			\caption{Accuracy on the training and validation set versus the maximum depth of the decision tree.}
+			\label{fig:q7a}
+		\end{figure}
+	\end{subproblem}
+	
+	\begin{subproblem}
+		The first two layers of the decision tree are shown in \cref{fig:q7b}. The words present as upper level determination boundaries in this decision tree seem to share somewhat more in common with the words identified from naive bayes rather than logistic regression. Additionally, there are several unique words in these upper layers that do not appear in either previous set. These new words primarily seem to be classifying only a few words at a time; the words that separate the set into two large parts seem to generally overlap with those found previously.
+		\begin{figure}
+			\includegraphics[width=\linewidth]{decision_tree}
+			\caption{First two layers of the decision tree.}
+			\label{fig:q7b}
+		\end{figure}
+	\end{subproblem}
+
+	\begin{subproblem}
+		The performance of each different classifier is summarised in \cref{tab:q7}. 
+		
+		The best performance outside of the training set was seen in the Naive Bayes model, beating the logistic regression model by about a percentage point. On the training set meanwhile, the best performance was achieved by the logistic regression model, achieving nearly perfect accuracy. This discrepancy suggests greater overfitting in the logistic model than the Naive Bayes model.
+		
+		The worst performance on the validation and testing sets was observed with the decision tree model. The worst performance in the training set was observed with the Naive Bayes model; however, this is likely the result of tuning the prior to maximize validation accuracy as opposed to training set accuracy.
+		
+		That decision tree model achieved the worst accuracy on the validation set and testing set despite very high accuracy on the training set suggests that this model overfit the data presented the most out of the three models. Additionally, the drop in accuracy from the validation set to the testing set suggests that there was some overfitting in the selection of hyper parameters. This matches what was observed - most values of the hyper parameters produced similar accuracy hence the difference in accuracy was likely due in part due to random chance in the data set.
+		\begin{table}
+			\centering
+			\caption{Summary of the accuracy of the three different tested classification model on the training, validation, and testing set.}
+			\label{tab:q7}
+			\begin{tabular}{rSSS}
+				& {Naive Bayes} & {Logistic Regression} & {Decision Tree} \\
+				\hline
+				Training & 0.9528 & 0.9947 & 0.9856 \\
+				Validation & 0.8490 & 0.8327 & 0.8000  \\
+				Testing & 0.8408 & 0.8327 & 0.7591 \\
+				\hline
+			\end{tabular}
+		\end{table}
+	\end{subproblem}
 	
 \end{problem}
 \clearpage
@@ -497,7 +542,23 @@
 %	PART 8
 %----------------------------------------------------------------------------------------
 
+\FloatBarrier
 \begin{problem}
+	
+	\begin{minted}[mathescape, linenos, numbersep=5pt, gobble=2, frame=lines, framesep=2mm, tabsize=4, breaklines]{python}
+		def mutual_information_to_output(data, word):
+			def entropy(a):
+				pa = np.mean(a)
+				return -pa * np.log2(pa) - (1 - pa) * np.log2(1 - pa)
+		
+			present = data[0].astype(bool)
+			not_present = np.logical_not(present)
+			label = data[1]
+			
+			return entropy(label) - \
+				np.mean(present) * entropy(label[present]) - \
+				np.mean(not_present) * entropy(label[not_present])
+	\end{minted}
 	
 	
 \end{problem}

@@ -1,9 +1,10 @@
-import torch
 import numpy as np
+import torch
 from scipy.optimize import minimize_scalar
 
 dtype_float = torch.cuda.FloatTensor
 dtype_long = torch.cuda.LongTensor
+
 
 def build_model(num_words):
     return torch.nn.Sequential(
@@ -13,8 +14,10 @@ def build_model(num_words):
 
 def cross_entropy_loss(y_pred, y):
     y = y.type(dtype_float)
-    y_pred = 0.999 / (1 + torch.exp(-y_pred[:,0])) + 0.0005
-    return -torch.sum(y * torch.log(y_pred) + (1 - y) * torch.log(1 - y_pred)) / len(y_pred.data.cpu().numpy())
+    y_pred = 0.999 / (1 + torch.exp(-y_pred[:, 0])) + 0.0005
+    return -torch.sum(
+        y * torch.log(y_pred) + (1 - y) * torch.log(1 - y_pred)) / len(
+        y_pred.data.cpu().numpy())
 
 
 def get_error(model, loss_fn, data):

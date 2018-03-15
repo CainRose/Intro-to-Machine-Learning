@@ -1,18 +1,21 @@
-import numpy as np
 from collections import Counter
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
 import bayes
 import data_processing
+import decision_tree
 import logistic
-import torch
-import matplotlib.pyplot as plt
 
 
 def main():
     print("Please select question to display output for:\n" +
-          "\t1 2 3 4 5 6 7 8")
+          "\t1 2 3 4 6 7 8")
     np.random.seed(11)
     torch.manual_seed(11)
-    question = '4'  # raw_input()
+    question = input()
     fake, real = data_processing.load_data()
 
     if question == '1':
@@ -126,7 +129,7 @@ def main():
     elif question == '4':
         data, keywords = data_processing.process_data(fake, real, True)
 
-        weight_decay = 0.000061 # logistic.tune_regularization(data)
+        weight_decay = logistic.tune_regularization(data)
 
         model = logistic.build_model(len(keywords)).cuda()
         loss_fn = logistic.cross_entropy_loss
@@ -143,12 +146,27 @@ def main():
 
         print('Final Regularization Selected: {:f}'.format(weight_decay))
 
+        actual = data[0][1].data.cpu().numpy()
+        prediction = model(data[0][0]).data.cpu().numpy()
+        print('Training Set Accuracy:',
+              np.mean(np.mean((prediction > 0).T == actual)))
         actual = data[2][1].data.cpu().numpy()
         prediction = model(data[2][0]).data.cpu().numpy()
-        print('Testing Set Error:',
-              logistic.get_error(model, loss_fn, data[2])[0])
+        print('Validation Set Accuracy:',
+              np.mean(np.mean((prediction > 0).T == actual)))
+        actual = data[2][1].data.cpu().numpy()
+        prediction = model(data[2][0]).data.cpu().numpy()
         print('Testing Set Accuracy:',
-              np.mean((prediction > 0.5).T == actual))
+              np.mean(np.mean((prediction > 0).T == actual)))
+
+    elif question == '6':
+        data, keywords = data_processing.process_data(fake, real, True)
+        weight_decay = 0.000061
+        model = logistic.build_model(len(keywords)).cuda()
+        loss_fn = logistic.cross_entropy_loss
+        train_error, valid_error = logistic.train_classifier(
+            model, loss_fn, data[0], data[1], iterations=800, batch_size=1000,
+            regularization=weight_decay)
 
         param = model[0].weight.cpu().data.numpy()[0]
         param_sort = np.argsort(param)
@@ -163,7 +181,7 @@ def main():
         from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
         ENGLISH_STOP_WORDS = list(ENGLISH_STOP_WORDS)
         param_sort = param_sort[np.isin(keywords[param_sort],
-                                              ENGLISH_STOP_WORDS, invert=True)]
+                                        ENGLISH_STOP_WORDS, invert=True)]
         print("Excluding stop words")
         print("Words whose presence predicts a real headline")
         for i in param_sort[:10]:
@@ -172,6 +190,19 @@ def main():
         for i in param_sort[-10:][::-1]:
             print('\t{:15}{:.4f}'.format(keywords[i], param[i]))
 
+    elif question == '7':
+        data, keywords = data_processing.process_data(fake, real)
+        clf = decision_tree.build_model(data)
+        decision_tree.display_graph(clf, keywords)
+
+    elif question == '8':
+        data, keywords = data_processing.process_data(fake, real)
+        word = list(keywords).index('just')
+        Im = decision_tree.mutual_information_to_output(data[0], word)
+        print('Mutual information of top level split: {:f}'.format(Im))
+        word = list(keywords).index('trump')
+        Im = decision_tree.mutual_information_to_output(data[0], word)
+        print('Mutual information of another split: {:f}'.format(Im))
 
 if __name__ == '__main__':
     main()

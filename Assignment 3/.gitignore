@@ -1,7 +1,11 @@
 /.idea
 /__pycache__
+/_minted-fake
 *.log
 *.aux
 *.synctex.gz
 *.pyc
 *.pyg
+*.pkl
+*.out
+/decision_tree
