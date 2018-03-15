@@ -16,9 +16,8 @@
 \usepackage{listings} % Required for insertion of code
 \usepackage{courier} % Required for the courier font
 %\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
-\usepackage{amsmath,siunitx,amssymb}
+\usepackage{amsmath,physics,siunitx,amssymb}
 \usepackage{placeins}
-%\renewcommand\TestAppExists[3]{#2}
 \usepackage{minted}
 \usepackage{enumitem}
 \usepackage{hyperref,cleveref}
@@ -544,23 +543,30 @@
 
 \FloatBarrier
 \begin{problem}
-	
-	\begin{minted}[mathescape, linenos, numbersep=5pt, gobble=2, frame=lines, framesep=2mm, tabsize=4, breaklines]{python}
-		def mutual_information_to_output(data, word):
-			def entropy(a):
-				pa = np.mean(a)
-				return -pa * np.log2(pa) - (1 - pa) * np.log2(1 - pa)
-		
-			present = data[0].astype(bool)
-			not_present = np.logical_not(present)
-			label = data[1]
+	\begin{subproblem}
+		The code used to calculate the mutual information given the index of a word is shown below.	For the first split of the decision tree (based on "just"), the calculated mutual information of the split is 0.020142.
+		\begin{minted}[mathescape, linenos, numbersep=5pt, gobble=2, frame=lines, framesep=2mm, tabsize=4, breaklines]{python}
+			def mutual_information_to_output(data, word):
+				def entropy(a):
+					pa = np.mean(a)
+					return -pa * np.log2(pa) - (1 - pa) * np.log2(1 - pa)
 			
-			return entropy(label) - \
-				np.mean(present) * entropy(label[present]) - \
-				np.mean(not_present) * entropy(label[not_present])
-	\end{minted}
-	
-	
+				present = data[0].astype(bool)
+				not_present = np.logical_not(present)
+				label = data[1]
+				
+				# mean is equivalent to probability
+				return entropy(label) - \
+					np.mean(present) * entropy(label[present]) - \
+					np.mean(not_present) * entropy(label[not_present])
+		\end{minted}
+	\end{subproblem}
+
+	\begin{subproblem}
+		For the randomly chosen word "fellowship", the calculated mutual information using the code above of a split based on the presence of this word is 0.000586. Given that the initial split will be applied to every headline, it is to be expected that the information gain of the initial split is larger than that of a randomly selected word. In further tests against nine other random words, all other words had an information gain less than or equal to the information gain of "fellowship".
+		
+		The word chosen for the initial split is not necessarily the word that has the largest information gain however. The information gain of a split based on the word "trumps", chosen because of its appearance in several of the list of most important words for Naive Bayes and logistic regression, is 0.046139. Despite this large information gain, it is likely that a split about "trumps" is not an optimal initial split because of its affect on later decisions; "just" is probably better in this regard, given that it was selected.
+	\end{subproblem}
 \end{problem}
 \clearpage
 
