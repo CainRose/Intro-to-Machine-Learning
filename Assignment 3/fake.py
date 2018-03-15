@@ -197,12 +197,22 @@ def main():
 
     elif question == '8':
         data, keywords = data_processing.process_data(fake, real)
-        word = list(keywords).index('just')
+        word_name = 'just'
+        word = list(keywords).index(word_name)
         Im = decision_tree.mutual_information_to_output(data[0], word)
-        print('Mutual information of top level split: {:f}'.format(Im))
-        word = list(keywords).index('trump')
+        print('Mutual information of top level split ({}): {:f}'
+              .format(word_name, Im))
+        for i in range(10):
+            word_name = np.random.choice(keywords)
+            word = list(keywords).index(word_name)
+            Im = decision_tree.mutual_information_to_output(data[0], word)
+            print('Mutual information of another split ({}): {:f}'
+                  .format(word_name, Im))
+        word_name = 'trumps'
+        word = list(keywords).index(word_name)
         Im = decision_tree.mutual_information_to_output(data[0], word)
-        print('Mutual information of another split: {:f}'.format(Im))
+        print('Mutual information of big split ({}): {:f}'
+              .format(word_name, Im))
 
 if __name__ == '__main__':
     main()

@@ -106,8 +106,12 @@ def display_graph(clf, keywords, max_depth=2):
 
 
 def mutual_information_to_output(data, word):
-    def entropy(a):
+    def entropy(a, condition=None):
+        if condition is not None and sum(condition):
+            a = a[condition]
         pa = np.mean(a)
+        if pa == 0 or pa == 1:
+            return 0
         return -pa * np.log2(pa) - (1 - pa) * np.log2(1 - pa)
 
     present = data[0].T[word].toarray().astype(bool)[0]
@@ -115,5 +119,5 @@ def mutual_information_to_output(data, word):
     label = data[1]
 
     return entropy(label) - \
-           np.mean(present) * entropy(label[present]) - \
-           np.mean(not_present) * entropy(label[not_present])
+           np.mean(present) * entropy(label, present) - \
+           np.mean(not_present) * entropy(label, not_present)

@@ -20,7 +20,6 @@ def process_data(fake, real, as_tensor=False):
     labels = np.array([1] * len(fake) + [0] * len(real))
     keywords = sorted(list(set([w for headline in fake for w in headline])
                     .union(set([w for headline in real for w in headline]))))
-    keywords = keywords[::-1]
     data = np.zeros((len(raw_data), len(keywords)))
     for i, headline in enumerate(raw_data):
         for w in headline:
