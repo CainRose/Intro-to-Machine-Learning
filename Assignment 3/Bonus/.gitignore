@@ -1,0 +1,11 @@
+/.idea
+/__pychache__
+*.pkl
+*.aux
+*.bbl
+*.log
+*.syntex.gz
+*.run.xml
+*.out
+*.bcf
+*.blg
